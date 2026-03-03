@@ -18,16 +18,16 @@ local config = {
   filter = "status:pending",
   window = "split",
   urgency_thresholds = {
-    high   = 10,
+    high = 10,
     medium = 5,
   },
   highlights = {
-    pending       = "NvimTasksPending",
-    done          = "NvimTasksDone",
-    urgency_high  = "NvimTasksUrgencyHigh",
+    pending = "NvimTasksPending",
+    done = "NvimTasksDone",
+    urgency_high = "NvimTasksUrgencyHigh",
     urgency_medium = "NvimTasksUrgencyMedium",
-    urgency_low   = "NvimTasksUrgencyLow",
-    blocked       = "NvimTasksBlocked",
+    urgency_low = "NvimTasksUrgencyLow",
+    blocked = "NvimTasksBlocked",
   },
 }
 
@@ -37,15 +37,15 @@ local M = {}
 M.config = config
 
 local function setup_highlights()
-  vim.api.nvim_set_hl(0, "NvimTasksTitle",          { default = true, link = "Title" })
-  vim.api.nvim_set_hl(0, "NvimTasksPending",       { default = true, link = "Normal" })
-  vim.api.nvim_set_hl(0, "NvimTasksDone",          { default = true, link = "Comment" })
-  vim.api.nvim_set_hl(0, "NvimTasksBlocked",       { default = true, link = "DiagnosticHint" })
-  vim.api.nvim_set_hl(0, "NvimTasksHints",         { default = true, link = "Comment" })
-  vim.api.nvim_set_hl(0, "NvimTasksTags",          { default = true, link = "Comment" })
-  vim.api.nvim_set_hl(0, "NvimTasksUrgencyHigh",   { default = true, link = "DiagnosticError" })
+  vim.api.nvim_set_hl(0, "NvimTasksTitle", { default = true, link = "Title" })
+  vim.api.nvim_set_hl(0, "NvimTasksPending", { default = true, link = "Normal" })
+  vim.api.nvim_set_hl(0, "NvimTasksDone", { default = true, link = "Comment" })
+  vim.api.nvim_set_hl(0, "NvimTasksBlocked", { default = true, link = "DiagnosticHint" })
+  vim.api.nvim_set_hl(0, "NvimTasksHints", { default = true, link = "Comment" })
+  vim.api.nvim_set_hl(0, "NvimTasksTags", { default = true, link = "Comment" })
+  vim.api.nvim_set_hl(0, "NvimTasksUrgencyHigh", { default = true, link = "DiagnosticError" })
   vim.api.nvim_set_hl(0, "NvimTasksUrgencyMedium", { default = true, link = "DiagnosticWarn" })
-  vim.api.nvim_set_hl(0, "NvimTasksUrgencyLow",    { default = true, link = "DiagnosticInfo" })
+  vim.api.nvim_set_hl(0, "NvimTasksUrgencyLow", { default = true, link = "DiagnosticInfo" })
 end
 
 ---@param args NvimTasksConfig?
@@ -57,8 +57,8 @@ end
 ---@param opts { filter: string?, window: string?, options: string? }?
 M.open = function(opts)
   opts = opts or {}
-  local filter  = opts.filter  or M.config.filter
-  local window  = opts.window  or M.config.window
+  local filter = opts.filter or M.config.filter
+  local window = opts.window or M.config.window
   local rc_overrides = opts.options and vim.fn.expand(opts.options) or nil
   setup_highlights()
 
@@ -134,7 +134,10 @@ M.open = function(opts)
       end
       vim.api.nvim_buf_add_highlight(buf, ns, hl, i - 1, 0, -1)
       if task.tags and #task.tags > 0 then
-        local tag_text = " " .. table.concat(vim.tbl_map(function(t) return "+" .. t end, task.tags), ",")
+        local prefixed = vim.tbl_map(function(t)
+          return "+" .. t
+        end, task.tags)
+        local tag_text = " " .. table.concat(prefixed, ",")
         vim.api.nvim_buf_set_extmark(buf, ns, i - 1, 0, {
           virt_text = { { tag_text, "NvimTasksTags" } },
           virt_text_pos = "eol",
@@ -196,14 +199,20 @@ M.open = function(opts)
     close_popup()
     local row = vim.api.nvim_win_get_cursor(win)[1]
     local task = line_map[row]
-    if not task then return end
+    if not task then
+      return
+    end
 
     local by_uuid = {}
     for _, t in pairs(line_map) do
-      if t.uuid then by_uuid[t.uuid] = t end
+      if t.uuid then
+        by_uuid[t.uuid] = t
+      end
     end
     local detail = tasks.detail_lines(task, by_uuid)
-    if #detail == 0 then return end
+    if #detail == 0 then
+      return
+    end
 
     local popup_buf = vim.api.nvim_create_buf(false, true)
     vim.api.nvim_buf_set_lines(popup_buf, 0, -1, false, detail)
@@ -212,7 +221,9 @@ M.open = function(opts)
 
     local max_width = 0
     for _, l in ipairs(detail) do
-      if #l > max_width then max_width = #l end
+      if #l > max_width then
+        max_width = #l
+      end
     end
 
     popup_win = vim.api.nvim_open_win(popup_buf, false, {
@@ -226,11 +237,15 @@ M.open = function(opts)
     })
   end
 
-  vim.keymap.set("n", "q", function() close_popup(); vim.cmd("close") end, { buffer = buf, silent = true, nowait = true })
+  vim.keymap.set("n", "q", function()
+    close_popup()
+    vim.cmd("close")
+  end, { buffer = buf, silent = true, nowait = true })
   vim.keymap.set("n", "K", show_popup, { buffer = buf, silent = true })
 
   local function refresh_buf()
-    local new_lines, new_line_map = tasks.format(tasks.fetch((rc_overrides and rc_overrides .. " " or "") .. filter) or {})
+    local new_lines, new_line_map =
+      tasks.format(tasks.fetch((rc_overrides and rc_overrides .. " " or "") .. filter) or {})
     local new_header = build_header()
     offset = #new_header
     local new_offset_map = {}
@@ -272,7 +287,9 @@ M.open = function(opts)
     local rc_prefix = rc_overrides and (rc_overrides .. " ") or ""
     vim.ui.input({ prompt = "task " .. rc_prefix .. "add " }, function(input)
       if input and input ~= "" then
-        if tasks.add(input, rc_overrides) then refresh_buf() end
+        if tasks.add(input, rc_overrides) then
+          refresh_buf()
+        end
       end
     end)
   end, { buffer = buf, silent = true })
@@ -281,43 +298,59 @@ M.open = function(opts)
     close_popup()
     local row = vim.api.nvim_win_get_cursor(win)[1]
     local task = line_map[row]
-    if not task then return end
-    vim.ui.input(
-      { prompt = 'Delete "' .. task.description .. '"? (y/N) ' },
-      function(input)
-        if input and input:lower() == "y" then
-          if tasks.delete(task, rc_overrides) then refresh_buf() end
+    if not task then
+      return
+    end
+    vim.ui.input({ prompt = 'Delete "' .. task.description .. '"? (y/N) ' }, function(input)
+      if input and input:lower() == "y" then
+        if tasks.delete(task, rc_overrides) then
+          refresh_buf()
         end
       end
-    )
+    end)
   end, { buffer = buf, silent = true })
 
   vim.keymap.set("n", "e", function()
     close_popup()
     local row = vim.api.nvim_win_get_cursor(win)[1]
     local task = line_map[row]
-    if not task then return end
-    vim.ui.input({ prompt = "task " .. (rc_overrides and rc_overrides .. " " or "") .. task.id .. " modify " }, function(input)
-      if input and input ~= "" then
-        if tasks.modify(task, input, rc_overrides) then refresh_buf() end
+    if not task then
+      return
+    end
+    vim.ui.input(
+      { prompt = "task " .. (rc_overrides and rc_overrides .. " " or "") .. task.id .. " modify " },
+      function(input)
+        if input and input ~= "" then
+          if tasks.modify(task, input, rc_overrides) then
+            refresh_buf()
+          end
+        end
       end
-    end)
+    )
   end, { buffer = buf, silent = true })
 
   vim.keymap.set("n", "x", function()
     close_popup()
     local row = vim.api.nvim_win_get_cursor(win)[1]
     local task = line_map[row]
-    if not task then return end
-    if tasks.toggle(task, rc_overrides) then refresh_buf() end
+    if not task then
+      return
+    end
+    if tasks.toggle(task, rc_overrides) then
+      refresh_buf()
+    end
   end, { buffer = buf, silent = true })
 
   vim.keymap.set("n", "s", function()
     close_popup()
     local row = vim.api.nvim_win_get_cursor(win)[1]
     local task = line_map[row]
-    if not task then return end
-    if tasks.toggle_start(task, rc_overrides) then refresh_buf() end
+    if not task then
+      return
+    end
+    if tasks.toggle_start(task, rc_overrides) then
+      refresh_buf()
+    end
   end, { buffer = buf, silent = true })
 
   vim.api.nvim_create_autocmd("CursorMoved", {

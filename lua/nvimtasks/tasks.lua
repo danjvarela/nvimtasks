@@ -90,7 +90,6 @@ M.delete = function(task, rc)
   return vim.v.shell_error == 0
 end
 
-
 ---@param date_str string?
 ---@return string
 local function fmt_date(date_str)
@@ -113,38 +112,53 @@ M.format = function(task_list)
   -- Strip deleted tasks before any processing
   local active = {}
   for _, t in ipairs(task_list) do
-    if t.status ~= "deleted" then active[#active + 1] = t end
+    if t.status ~= "deleted" then
+      active[#active + 1] = t
+    end
   end
   task_list = active
 
   table.sort(task_list, function(a, b)
     local ua, ub = a.urgency or 0, b.urgency or 0
-    if ua ~= ub then return ua > ub end
+    if ua ~= ub then
+      return ua > ub
+    end
     return (a.uuid or "") < (b.uuid or "")
   end)
 
   local by_uuid = {}
   for _, t in ipairs(task_list) do
-    if t.uuid then by_uuid[t.uuid] = t end
+    if t.uuid then
+      by_uuid[t.uuid] = t
+    end
   end
 
   local function is_blocked(task)
-    if not task.depends or #task.depends == 0 then return false end
+    if not task.depends or #task.depends == 0 then
+      return false
+    end
     for _, dep_uuid in ipairs(task.depends) do
       local dep = by_uuid[dep_uuid]
-      if dep and dep.status ~= "completed" then return true end
+      if dep and dep.status ~= "completed" then
+        return true
+      end
     end
     return false
   end
 
   local function task_icon(task)
-    if task.status == "completed" then return "󰄵"
-    elseif task._blocked then return "󰌾"
-    elseif task.start then return "󱎫"
-    else return "󰄱" end
+    if task.status == "completed" then
+      return "󰄵"
+    elseif task._blocked then
+      return "󰌾"
+    elseif task.start then
+      return "󱎫"
+    else
+      return "󰄱"
+    end
   end
 
-  local lines    = {}
+  local lines = {}
   local line_map = {}
 
   for _, task in ipairs(task_list) do
@@ -168,12 +182,12 @@ M.detail_lines = function(task, by_uuid)
       table.insert(lines, string.format(" %-12s %s", label .. ":", value))
     end
   end
-  add("ID",       tostring(task.id or ""))
-  add("Status",   task.status or "")
-  add("Project",  task.project or "")
+  add("ID", tostring(task.id or ""))
+  add("Status", task.status or "")
+  add("Project", task.project or "")
   add("Priority", task.priority or "")
-  add("Due",      fmt_date(task.due))
-  add("Urgency",  task.urgency and string.format("%.2f", task.urgency) or "")
+  add("Due", fmt_date(task.due))
+  add("Urgency", task.urgency and string.format("%.2f", task.urgency) or "")
   if task.tags and #task.tags > 0 then
     add("Tags", table.concat(task.tags, ", "))
   end
