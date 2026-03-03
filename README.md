@@ -16,7 +16,7 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
 
 ```lua
 {
-  "your-username/nvimtasks",
+  "danjvarela/nvimtasks",
   config = function()
     require("nvimtasks").setup()
   end
