@@ -1,47 +1,116 @@
-# A Neovim Plugin Template
+# nvimtasks
 
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/ellisonleao/nvim-plugin-template/lint-test.yml?branch=main&style=for-the-badge)
 ![Lua](https://img.shields.io/badge/Made%20with%20Lua-blueviolet.svg?style=for-the-badge&logo=lua)
 
-A template repository for Neovim plugins.
+A Neovim plugin that renders [Taskwarrior](https://taskwarrior.org) tasks inside Neovim. No external dependencies — uses only the Neovim Lua API.
 
-## Using it
+## Requirements
 
-Via `gh`:
+- Neovim >= 0.9
+- [Taskwarrior](https://taskwarrior.org/download/) (`task` CLI available in `$PATH`)
+- A [Nerd Font](https://www.nerdfonts.com/) for task icons
+
+## Installation
+
+Using [lazy.nvim](https://github.com/folke/lazy.nvim):
+
+```lua
+{
+  "your-username/nvimtasks",
+  config = function()
+    require("nvimtasks").setup()
+  end
+}
+```
+
+## Usage
 
 ```
-$ gh repo create my-plugin -p ellisonleao/nvim-plugin-template
+:Tasks [filter]
 ```
 
-Via github web page:
+Opens the task window with an optional Taskwarrior filter. Defaults to `status:pending`.
 
-Click on `Use this template`
+Or call `open()` directly from Lua:
 
-![](https://docs.github.com/assets/cb-36544/images/help/repository/use-this-template-button.png)
+```lua
+require("nvimtasks").open({
+  filter  = "status:pending project:work",
+  window  = "split",   -- "split" | "vsplit" | "float"
+  options = "rc.data.location=/path/to/data",
+})
+```
 
-## Features and structure
+## Keymaps (inside the task window)
 
-- 100% Lua
-- Github actions for:
-  - running tests using [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) and [busted](https://olivinelabs.com/busted/)
-  - check for formatting errors (Stylua)
-  - vimdocs autogeneration from README.md file
-  - luarocks release (LUAROCKS_API_KEY secret configuration required)
+| Key | Action |
+|-----|--------|
+| `a` | Add a new task (full `task add` syntax) |
+| `e` | Edit/modify the task under cursor |
+| `d` | Delete task under cursor (asks confirmation) |
+| `x` | Toggle task done / pending |
+| `s` | Start / stop task |
+| `K` | Show task details popup |
+| `f` | Change the active filter |
+| `o` | Set rc overrides (e.g. `rc.data.location=...`) |
+| `q` | Close the window |
 
-### Plugin structure
+## Configuration
+
+```lua
+require("nvimtasks").setup({
+  filter = "status:pending",       -- default Taskwarrior filter
+  window = "split",                -- "split" | "vsplit" | "float"
+  urgency_thresholds = {
+    high   = 10,
+    medium = 5,
+  },
+  highlights = {
+    pending        = "NvimTasksPending",
+    done           = "NvimTasksDone",
+    blocked        = "NvimTasksBlocked",
+    urgency_high   = "NvimTasksUrgencyHigh",
+    urgency_medium = "NvimTasksUrgencyMedium",
+    urgency_low    = "NvimTasksUrgencyLow",
+  },
+})
+```
+
+### Highlight groups
+
+| Group | Default link | Used for |
+|-------|-------------|----------|
+| `NvimTasksTitle` | `Title` | Header title line |
+| `NvimTasksHints` | `Comment` | Keybinding hints, filter/options lines |
+| `NvimTasksPending` | `Normal` | Pending tasks (low urgency) |
+| `NvimTasksDone` | `Comment` | Completed tasks |
+| `NvimTasksBlocked` | `DiagnosticHint` | Blocked tasks (unmet dependencies) |
+| `NvimTasksUrgencyHigh` | `DiagnosticError` | High urgency tasks |
+| `NvimTasksUrgencyMedium` | `DiagnosticWarn` | Medium urgency tasks |
+| `NvimTasksUrgencyLow` | `DiagnosticInfo` | Low urgency tasks |
+| `NvimTasksTags` | `Comment` | Tag inlay hints (`+tag1,+tag2`) |
+
+## Task icons
+
+| Icon | Meaning |
+|------|---------|
+| `󰄱` | Pending |
+| `󱎫` | Started |
+| `󰄵` | Done |
+| `󰌾` | Blocked (has unmet dependencies) |
+
+## Multiple Taskwarrior databases
+
+Use the `options` parameter (or press `o` at runtime) to point at a different data directory:
+
+```lua
+require("nvimtasks").open({
+  options = "rc.data.location=" .. vim.fn.expand("$HOME/.config/taskwarrior/work-data"),
+})
+```
+
+## Running tests
 
 ```
-.
-├── lua
-│   ├── plugin_name
-│   │   └── module.lua
-│   └── plugin_name.lua
-├── Makefile
-├── plugin
-│   └── plugin_name.lua
-├── README.md
-├── tests
-│   ├── minimal_init.lua
-│   └── plugin_name
-│       └── plugin_name_spec.lua
+make test
 ```
