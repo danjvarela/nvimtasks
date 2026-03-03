@@ -1,0 +1,163 @@
+*nvimtasks.txt*         For Neovim >= 0.8.0         Last change: 2026 March 03
+
+==============================================================================
+Table of Contents                                *nvimtasks-table-of-contents*
+
+1. nvimtasks                                             |nvimtasks-nvimtasks|
+  - Requirements                            |nvimtasks-nvimtasks-requirements|
+  - Installation                            |nvimtasks-nvimtasks-installation|
+  - Usage                                          |nvimtasks-nvimtasks-usage|
+  - Keymaps (inside the task window)|nvimtasks-nvimtasks-keymaps-(inside-the-task-window)|
+  - Configuration                          |nvimtasks-nvimtasks-configuration|
+  - Task icons                                |nvimtasks-nvimtasks-task-icons|
+  - Multiple Taskwarrior databases|nvimtasks-nvimtasks-multiple-taskwarrior-databases|
+  - Running tests                          |nvimtasks-nvimtasks-running-tests|
+2. Links                                                     |nvimtasks-links|
+
+==============================================================================
+1. nvimtasks                                             *nvimtasks-nvimtasks*
+
+A Neovim plugin that renders Taskwarrior <https://taskwarrior.org> tasks inside
+Neovim. No external dependencies — uses only the Neovim Lua API.
+
+
+REQUIREMENTS                                *nvimtasks-nvimtasks-requirements*
+
+- Neovim >= 0.9
+- Taskwarrior <https://taskwarrior.org/download/> (`task` CLI available in `$PATH`)
+- A Nerd Font <https://www.nerdfonts.com/> for task icons
+
+
+INSTALLATION                                *nvimtasks-nvimtasks-installation*
+
+Using lazy.nvim <https://github.com/folke/lazy.nvim>:
+
+>lua
+    {
+      "your-username/nvimtasks",
+      config = function()
+        require("nvimtasks").setup()
+      end
+    }
+<
+
+
+USAGE                                              *nvimtasks-nvimtasks-usage*
+
+>
+    :Tasks [filter]
+<
+
+Opens the task window with an optional Taskwarrior filter. Defaults to
+`status:pending`.
+
+Or call `open()` directly from Lua:
+
+>lua
+    require("nvimtasks").open({
+      filter  = "status:pending project:work",
+      window  = "split",   -- "split" | "vsplit" | "float"
+      options = "rc.data.location=/path/to/data",
+    })
+<
+
+
+KEYMAPS (INSIDE THE TASK WINDOW)*nvimtasks-nvimtasks-keymaps-(inside-the-task-window)*
+
+  Key   Action
+  ----- ----------------------------------------------
+  a     Add a new task (full task add syntax)
+  e     Edit/modify the task under cursor
+  d     Delete task under cursor (asks confirmation)
+  x     Toggle task done / pending
+  s     Start / stop task
+  K     Show task details popup
+  f     Change the active filter
+  o     Set rc overrides (e.g. rc.data.location=...)
+  q     Close the window
+
+CONFIGURATION                              *nvimtasks-nvimtasks-configuration*
+
+>lua
+    require("nvimtasks").setup({
+      filter = "status:pending",       -- default Taskwarrior filter
+      window = "split",                -- "split" | "vsplit" | "float"
+      urgency_thresholds = {
+        high   = 10,
+        medium = 5,
+      },
+      highlights = {
+        pending        = "NvimTasksPending",
+        done           = "NvimTasksDone",
+        blocked        = "NvimTasksBlocked",
+        urgency_high   = "NvimTasksUrgencyHigh",
+        urgency_medium = "NvimTasksUrgencyMedium",
+        urgency_low    = "NvimTasksUrgencyLow",
+      },
+    })
+<
+
+
+HIGHLIGHT GROUPS ~
+
+  -------------------------------------------------------------------------------
+  Group                    Default link                   Used for
+  ------------------------ ------------------------------ -----------------------
+  NvimTasksTitle           Title                          Header title line
+
+  NvimTasksHints           Comment                        Keybinding hints,
+                                                          filter/options lines
+
+  NvimTasksPending         Normal                         Pending tasks (low
+                                                          urgency)
+
+  NvimTasksDone            Comment                        Completed tasks
+
+  NvimTasksBlocked         DiagnosticHint                 Blocked tasks (unmet
+                                                          dependencies)
+
+  NvimTasksUrgencyHigh     DiagnosticError                High urgency tasks
+
+  NvimTasksUrgencyMedium   DiagnosticWarn                 Medium urgency tasks
+
+  NvimTasksUrgencyLow      DiagnosticInfo                 Low urgency tasks
+
+  NvimTasksTags            Comment                        Tag inlay hints
+                                                          (+tag1,+tag2)
+  -------------------------------------------------------------------------------
+
+TASK ICONS                                    *nvimtasks-nvimtasks-task-icons*
+
+  Icon   Meaning
+  ------ ----------------------------------
+  󰄱      Pending
+  󱎫      Started
+  󰄵      Done
+  󰌾      Blocked (has unmet dependencies)
+
+MULTIPLE TASKWARRIOR DATABASES*nvimtasks-nvimtasks-multiple-taskwarrior-databases*
+
+Use the `options` parameter (or press `o` at runtime) to point at a different
+data directory:
+
+>lua
+    require("nvimtasks").open({
+      options = "rc.data.location=" .. vim.fn.expand("$HOME/.config/taskwarrior/work-data"),
+    })
+<
+
+
+RUNNING TESTS                              *nvimtasks-nvimtasks-running-tests*
+
+>
+    make test
+<
+
+==============================================================================
+2. Links                                                     *nvimtasks-links*
+
+1. *Lua*: https://img.shields.io/badge/Made%20with%20Lua-blueviolet.svg?style=for-the-badge&logo=lua
+
+Generated by panvimdoc <https://github.com/kdheepak/panvimdoc>
+
+vim:tw=78:ts=8:noet:ft=help:norl:
