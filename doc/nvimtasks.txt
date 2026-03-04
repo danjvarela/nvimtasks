@@ -1,4 +1,4 @@
-*nvimtasks.txt*         For Neovim >= 0.8.0         Last change: 2026 March 03
+*nvimtasks.txt*         For Neovim >= 0.8.0         Last change: 2026 March 04
 
 ==============================================================================
 Table of Contents                                *nvimtasks-table-of-contents*
@@ -12,6 +12,7 @@ Table of Contents                                *nvimtasks-table-of-contents*
   - Task icons                                |nvimtasks-nvimtasks-task-icons|
   - Multiple Taskwarrior databases|nvimtasks-nvimtasks-multiple-taskwarrior-databases|
   - Running tests                          |nvimtasks-nvimtasks-running-tests|
+  - Roadmap                                      |nvimtasks-nvimtasks-roadmap|
 2. Links                                                     |nvimtasks-links|
 
 ==============================================================================
@@ -152,6 +153,27 @@ RUNNING TESTS                              *nvimtasks-nvimtasks-running-tests*
 >
     make test
 <
+
+
+ROADMAP                                          *nvimtasks-nvimtasks-roadmap*
+
+
+CURRENT FEATURES ~
+
+- View tasks in a readonly split window
+- Add, edit, delete tasks
+- Toggle task done/started
+- Filter tasks and show active filter in header
+- RC overrides for multiple Taskwarrior databases
+- Urgency-based highlights
+- Blocked task visualization (unmet dependencies)
+- Tag inlay hints
+
+
+PLANNED ~
+
+- Annotations (add, view, delete)
+- Recurring tasks support
 
 ==============================================================================
 2. Links                                                     *nvimtasks-links*
