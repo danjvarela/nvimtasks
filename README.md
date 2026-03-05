@@ -26,7 +26,7 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
 ## Usage
 
 ```
-:Tasks [filter]
+:NvimTasks [filter]
 ```
 
 Opens the task window with an optional Taskwarrior filter. Defaults to `status:pending`.
@@ -51,6 +51,7 @@ require("nvimtasks").open({
 | `x` | Toggle task done / pending |
 | `s` | Start / stop task |
 | `K` | Show task details popup |
+| `n` | Add / delete annotations on task under cursor |
 | `f` | Change the active filter |
 | `o` | Set rc overrides (e.g. `rc.data.location=...`) |
 | `q` | Close the window |
@@ -89,8 +90,11 @@ require("nvimtasks").setup({
 | `NvimTasksUrgencyMedium` | `DiagnosticWarn` | Medium urgency tasks |
 | `NvimTasksUrgencyLow` | `DiagnosticInfo` | Low urgency tasks |
 | `NvimTasksTags` | `Comment` | Tag inlay hints (`+tag1,+tag2`) |
+| `NvimTasksRecur` | `Special` | Recurrence indicator (`↻`) |
 
 ## Task icons
+
+Task icons are prefixed with a recurrence indicator (`󰑖`) when the task belongs to a recurring series.
 
 | Icon | Meaning |
 |------|---------|
@@ -127,8 +131,5 @@ make test
 - Urgency-based highlights
 - Blocked task visualization (unmet dependencies)
 - Tag inlay hints
-
-### Planned
-
-- [ ] Annotations (add, view, delete)
-- [ ] Recurring tasks support
+- Annotations (add, view, delete)
+- Recurring task indicator
