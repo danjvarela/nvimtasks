@@ -119,17 +119,3 @@ require("nvimtasks").open({
 make test
 ```
 
-## Roadmap
-
-### Current features
-
-- View tasks in a readonly split window
-- Add, edit, delete tasks
-- Toggle task done/started
-- Filter tasks and show active filter in header
-- RC overrides for multiple Taskwarrior databases
-- Urgency-based highlights
-- Blocked task visualization (unmet dependencies)
-- Tag inlay hints
-- Annotations (add, view, delete)
-- Recurring task indicator
