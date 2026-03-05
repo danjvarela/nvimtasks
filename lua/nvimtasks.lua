@@ -43,6 +43,7 @@ local function setup_highlights()
   vim.api.nvim_set_hl(0, "NvimTasksBlocked", { default = true, link = "DiagnosticHint" })
   vim.api.nvim_set_hl(0, "NvimTasksHints", { default = true, link = "Comment" })
   vim.api.nvim_set_hl(0, "NvimTasksTags", { default = true, link = "Comment" })
+  vim.api.nvim_set_hl(0, "NvimTasksRecur", { default = true, link = "Special" })
   vim.api.nvim_set_hl(0, "NvimTasksUrgencyHigh", { default = true, link = "DiagnosticError" })
   vim.api.nvim_set_hl(0, "NvimTasksUrgencyMedium", { default = true, link = "DiagnosticWarn" })
   vim.api.nvim_set_hl(0, "NvimTasksUrgencyLow", { default = true, link = "DiagnosticInfo" })
@@ -74,7 +75,7 @@ M.open = function(opts)
   local function build_header()
     local lines = {
       " Tasks",
-      " a add · e edit · d del · x done · s start · K details · f filter · o options · q close",
+      " a add · e edit · d del · x done · s start · K details · n annotate · f filter · o options · q close",
       " filter:  " .. filter,
     }
     if rc_overrides and rc_overrides ~= "" then
@@ -133,13 +134,19 @@ M.open = function(opts)
         end
       end
       vim.api.nvim_buf_add_highlight(buf, ns, hl, i - 1, 0, -1)
+      local virt = {}
       if task.tags and #task.tags > 0 then
         local prefixed = vim.tbl_map(function(t)
           return "+" .. t
         end, task.tags)
-        local tag_text = " " .. table.concat(prefixed, ",")
+        table.insert(virt, { " " .. table.concat(prefixed, ","), "NvimTasksTags" })
+      end
+      if task.recur then
+        table.insert(virt, { " ↻" .. task.recur, "NvimTasksRecur" })
+      end
+      if #virt > 0 then
         vim.api.nvim_buf_set_extmark(buf, ns, i - 1, 0, {
-          virt_text = { { tag_text, "NvimTasksTags" } },
+          virt_text = virt,
           virt_text_pos = "eol",
         })
       end
@@ -351,6 +358,40 @@ M.open = function(opts)
     if tasks.toggle_start(task, rc_overrides) then
       refresh_buf()
     end
+  end, { buffer = buf, silent = true })
+
+  vim.keymap.set("n", "n", function()
+    close_popup()
+    local row = vim.api.nvim_win_get_cursor(win)[1]
+    local task = line_map[row]
+    if not task then
+      return
+    end
+    local choices = { "Add annotation" }
+    if task.annotations then
+      for _, ann in ipairs(task.annotations) do
+        table.insert(choices, "Delete: " .. ann.description)
+      end
+    end
+    vim.ui.select(choices, { prompt = "Annotations" }, function(choice, idx)
+      if not choice then
+        return
+      end
+      if idx == 1 then
+        vim.ui.input({ prompt = "Annotation: " }, function(input)
+          if input and input ~= "" then
+            if tasks.annotate(task, input, rc_overrides) then
+              refresh_buf()
+            end
+          end
+        end)
+      else
+        local ann = task.annotations[idx - 1]
+        if tasks.denotate(task, ann.description, rc_overrides) then
+          refresh_buf()
+        end
+      end
+    end)
   end, { buffer = buf, silent = true })
 
   vim.api.nvim_create_autocmd("CursorMoved", {

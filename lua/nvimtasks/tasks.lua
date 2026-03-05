@@ -1,3 +1,7 @@
+---@class Annotation
+---@field entry string
+---@field description string
+
 ---@class Task
 ---@field id number
 ---@field description string
@@ -7,6 +11,7 @@
 ---@field due string?
 ---@field urgency number?
 ---@field tags string[]?
+---@field annotations Annotation[]?
 
 local M = {}
 
@@ -90,6 +95,28 @@ M.delete = function(task, rc)
   return vim.v.shell_error == 0
 end
 
+---Add an annotation to a task
+---@param task Task
+---@param text string
+---@param rc string? rc overrides
+---@return boolean
+M.annotate = function(task, text, rc)
+  local prefix = rc and (rc .. " ") or ""
+  vim.fn.system("task " .. prefix .. task.uuid .. " annotate " .. vim.fn.shellescape(text) .. " rc.confirmation=off")
+  return vim.v.shell_error == 0
+end
+
+---Remove an annotation from a task by its description
+---@param task Task
+---@param text string annotation description to remove
+---@param rc string? rc overrides
+---@return boolean
+M.denotate = function(task, text, rc)
+  local prefix = rc and (rc .. " ") or ""
+  vim.fn.system("task " .. prefix .. task.uuid .. " denotate " .. vim.fn.shellescape(text) .. " rc.confirmation=off")
+  return vim.v.shell_error == 0
+end
+
 ---@param date_str string?
 ---@return string
 local function fmt_date(date_str)
@@ -112,7 +139,7 @@ M.format = function(task_list)
   -- Strip deleted tasks before any processing
   local active = {}
   for _, t in ipairs(task_list) do
-    if t.status ~= "deleted" then
+    if t.status ~= "deleted" and t.status ~= "recurring" then
       active[#active + 1] = t
     end
   end
@@ -147,14 +174,15 @@ M.format = function(task_list)
   end
 
   local function task_icon(task)
+    local recur = task.recur and "󰑖 " or "  "
     if task.status == "completed" then
-      return "󰄵"
+      return recur .. "󰄵"
     elseif task._blocked then
-      return "󰌾"
+      return recur .. "󰌾"
     elseif task.start then
-      return "󱎫"
+      return recur .. "󱎫"
     else
-      return "󰄱"
+      return recur .. "󰄱"
     end
   end
 
@@ -190,6 +218,12 @@ M.detail_lines = function(task, by_uuid)
   add("Urgency", task.urgency and string.format("%.2f", task.urgency) or "")
   if task.tags and #task.tags > 0 then
     add("Tags", table.concat(task.tags, ", "))
+  end
+  if task.annotations and #task.annotations > 0 then
+    table.insert(lines, string.format(" %-12s", "Annotations:"))
+    for _, ann in ipairs(task.annotations) do
+      table.insert(lines, "   · " .. fmt_date(ann.entry) .. " " .. ann.description)
+    end
   end
   if task.depends and #task.depends > 0 and by_uuid then
     local blockers = {}
