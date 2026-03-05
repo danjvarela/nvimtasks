@@ -12,7 +12,6 @@ Table of Contents                                *nvimtasks-table-of-contents*
   - Task icons                                |nvimtasks-nvimtasks-task-icons|
   - Multiple Taskwarrior databases|nvimtasks-nvimtasks-multiple-taskwarrior-databases|
   - Running tests                          |nvimtasks-nvimtasks-running-tests|
-  - Roadmap                                      |nvimtasks-nvimtasks-roadmap|
 2. Links                                                     |nvimtasks-links|
 
 ==============================================================================
@@ -46,7 +45,7 @@ Using lazy.nvim <https://github.com/folke/lazy.nvim>:
 USAGE                                              *nvimtasks-nvimtasks-usage*
 
 >
-    :Tasks [filter]
+    :NvimTasks [filter]
 <
 
 Opens the task window with an optional Taskwarrior filter. Defaults to
@@ -66,13 +65,14 @@ Or call `open()` directly from Lua:
 KEYMAPS (INSIDE THE TASK WINDOW)*nvimtasks-nvimtasks-keymaps-(inside-the-task-window)*
 
   Key   Action
-  ----- ----------------------------------------------
+  ----- -----------------------------------------------
   a     Add a new task (full task add syntax)
   e     Edit/modify the task under cursor
   d     Delete task under cursor (asks confirmation)
   x     Toggle task done / pending
   s     Start / stop task
   K     Show task details popup
+  n     Add / delete annotations on task under cursor
   f     Change the active filter
   o     Set rc overrides (e.g. rc.data.location=...)
   q     Close the window
@@ -125,9 +125,15 @@ HIGHLIGHT GROUPS ~
 
   NvimTasksTags            Comment                        Tag inlay hints
                                                           (+tag1,+tag2)
+
+  NvimTasksRecur           Special                        Recurrence indicator
+                                                          (↻)
   -------------------------------------------------------------------------------
 
 TASK ICONS                                    *nvimtasks-nvimtasks-task-icons*
+
+Task icons are prefixed with a recurrence indicator (`󰑖`) when the task
+belongs to a recurring series.
 
   Icon   Meaning
   ------ ----------------------------------
@@ -153,27 +159,6 @@ RUNNING TESTS                              *nvimtasks-nvimtasks-running-tests*
 >
     make test
 <
-
-
-ROADMAP                                          *nvimtasks-nvimtasks-roadmap*
-
-
-CURRENT FEATURES ~
-
-- View tasks in a readonly split window
-- Add, edit, delete tasks
-- Toggle task done/started
-- Filter tasks and show active filter in header
-- RC overrides for multiple Taskwarrior databases
-- Urgency-based highlights
-- Blocked task visualization (unmet dependencies)
-- Tag inlay hints
-
-
-PLANNED ~
-
-- Annotations (add, view, delete)
-- Recurring tasks support
 
 ==============================================================================
 2. Links                                                     *nvimtasks-links*
